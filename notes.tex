@@ -1,5 +1,5 @@
 \documentclass{article}
-
+\usepackage{graphicx}
 \begin{document}
 Robotic SLAM 
 \section{Introduction}
@@ -13,8 +13,8 @@ Terms
 \end{itemize}
 
 \subsection{What is SLAM}
-
-computing robot's poses and the map of the environment at the same time.\\
+    Computing robot's poses and the map of the environment at the 
+    same time.
 \textbf{Localisation} : estimating robots location\\ 
 \textbf{Mapping}      : building a MAP\\
 
@@ -40,4 +40,13 @@ error in individual measurements is really small)\\
 
 So in the probalistic terms our problem minimises to 
 $$p(x_{0:T},m|z_{1:T},u_{1:T})$$
+
+
+\includegraphics[width = \linewidth]{graphical_model.png}
+\subsection{Full Slam vs online SLAM}
+    \begin{itemize}
+        \item Full SLAM estimates the entire path $$p(x_{0:T},m|z_{1:T},u_{1:T})$$
+        \item Online SLAM estimates only the most recent pose $$p(x_{t},m|z_{1:T},u_{1:T})$$
+    \end{itemize}
+\includegraphics[width = \linewidth]{online_SLAM.jpg}
 \end{document}
