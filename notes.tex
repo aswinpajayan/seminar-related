@@ -1,5 +1,6 @@
 \documentclass{article}
 \usepackage{graphicx}
+\usepackage{amsmath}
 \begin{document}
 Robotic SLAM 
 \section{Introduction}
@@ -50,9 +51,40 @@ $$p(x_{0:T},m|z_{1:T},u_{1:T})$$
     \end{itemize}
 \includegraphics[width = \linewidth]{online_SLAM.jpg}
 
-\subsection{Volumetric SALM vs Feature based SLAM}
+\subsection{Types of SLAM}
     occupancy maps created from lidars, sonars etc. - volumetric SLAM
     feature based approach - store features and localise based on that 
     volumetric SLAM maybe  better for navigation applications . 
-    Topological representations vs geometric representations
+    Topological representations vs geometric representations.
+    Static vs dynamic features.
+    Active - robot decides the path so as to build a map vs passive slam -
+    may follow a fixed path i.e. path not optimised for mapping/ exploration
+\section{Bayes Filter}
+\subsection{State Estimation}
+    \textbf{Goal} $p(x|z,u)$
+    \newline
+    \textbf{Recursive Bayes Filter} 
+
+\begin{align*}  
+    bel(x_t) & = p(x_t | z_{1:t},u_{1:t})\\
+    & = \eta p(z_t|x_t,z_{1:t-1},u_{1:t}) * p(x_t | z_{1:t-1},u{1:t})\\
+    & = \eta p(z_t|x_t) * p(x_t | z_{1:t-1},u{1:t})\\
+    & = \eta p(z_t|x_t) \int_{x_{t-1}} p(x_t |x_{t-1}, z_{1:t-1},u_{1:t}) * p(x_{t-1}|z_{1:t-1}u_{1:t-1})dx_{t-1}\\
+    & = \eta p(z_t|x_t) \int_{x_{t-1}} p(x_t |x_{t-1},u_t) * bel(x_{t-1})dx_{t-1}
+ \end{align*}
+ we can split this into predict and update steps where\\
+ \textbf{Predict Step} 
+ $$\overline{bel(x_t)} =  \int_{x_{t-1}} p(x_t |x_{t-1},u_t) * bel(x_{t-1})dx_{t-1}$$
+ \textbf{Update Step} 
+ $$bel(x_t) =  \eta * p(z_t | x_t) * \overline{bel(x_t)}$$
+
+
+ \textbf{Bayes filter} gives a framework for recursive state estimation using
+ the above equations. The actual realisation  may be kalman filtering , EKF or
+ particle filter
+ (Linear\ non linear motion models )
+ (distributions)
+ \textit{Kalman Filter} -  Gaussians , requires linear or linearised model 
+ \textit{Particle filter} - Non-parametric , Arbitrary models
+ 
 \end{document}
