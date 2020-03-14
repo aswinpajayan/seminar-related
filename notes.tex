@@ -87,4 +87,67 @@ $$p(x_{0:T},m|z_{1:T},u_{1:T})$$
  \textit{Kalman Filter} -  Gaussians , requires linear or linearised model 
  \textit{Particle filter} - Non-parametric , Arbitrary models
  
+ \subsection{Probability motion models}
+ $p(x_t | u_t,x_{t-1})$ we can model this in two ways 
+ \begin{itemize}
+     \item odometry models - measurement of velocity (tends to be more accurate)
+     \item velocity models - we know the input commands, but no measurement of vel
+ \end{itemize}
+ \subsection{Model for laser scanners}
+ scan z consisits of k beams $z_t \,\epsilon \, \Re^{k}$ i.e. 
+ $z_t = \{z_t^1,z_t^2,.....z_t^k\}$,\\ Assuming 
+ beams are independednt, then $$p(z_t|x_t,m) = \prod_{i = 1}^{k} p(z_t^i|x_t,m)$$
+ \begin{itemize}
+     \item Beam endpoint model (likelihood calculated as gaussian blur on occupancy map)
+     \item Ray cast model (occlusion, sensor accuray, satuaration , random)
+     \item model for range bearing sensors $z_t^i  = (r_t^i,\phi_t^i)^T$
+        $$r_t^i = ||m-x|| + gaussian$$
+        $$\phi_t^i = \angle (m-x) - \theta + gaussian$$
+
+
+ \end{itemize}
+
+\section{Kalman filter Equations}
+\begin{align*}
+    \bar{\mu_t} & = g(u_t,\mu_{t-1})\\
+    \bar{\Sigma_t} & = G_t \Sigma_{t-1} G_t^T + R_t\\
+    K_t & = \bar{\Sigma_t}H_t^T(H_t\bar{\Sigma_t}H_t^T + Q_t)^{-1}\\
+    \mu_t & = \bar{\mu_t} + K_t(z_t - h(\bar{\mu_t}))\\
+    \Sigma_t & = (I - K_tH_t)\bar{\Sigma_t}
+\end{align*}
+\subsection{Summary}
+\begin{itemize}
+    \item Diverge for large non linearities 
+    \item Can deal only single modes 
+    \item Successful in medium scale scenes with good data associations
+    \item Approximations exists to reduce the computational complexity
+\end{itemize}
+\textbf{commonly used Datasets:}
+\begin{itemize}
+    \item Victoria Park Data sets - Trees are the landmark -Data assosciation -girth and height
+    \item Tennis Court Dataset - for mapping precescion
+\end{itemize}
+\section{Extended Kalman Filter vs Unscented Kalman Filter}
+\textbf{EKF} works by linearising the state transfer equations 
+thus making sure that all the conditional and marginal distributions 
+will remain gaussian. Gaussians are closed space. \textbf{UKF} uses
+the nonlinear state transmission equation, then tries to sample a 
+gaussian distribution from the non-gaussian resulted from the non-linear
+operation. 
+\subsection{Strategy for chosing sampling points and weights for UKF}
+\begin{align*}
+X^{[0]} &= \mu\\
+X^{[i]} &= \mu + (\sqrt{(n+\lambda)\Sigma})_i  \; for\: i = 1,...,n\\
+X^{[i]} &= \mu - (\sqrt{(n+\lambda)\Sigma})_i  \; for\: i = n+1,...,2n\\
+w_m^{[0]} &= \frac{\lambda}{n + \lambda}\\
+w_c^{[0]} &= w_m^{[0]} + (a -\alpha^2 + \beta)\\
+w_m^{[i]} = w_c^{[i]} &= \frac{1}{2(n+\lambda)} \: for \: i = 1,....,2n
+\end{align*}
+where $\alpha \, \epsilon \, (0,1]$; $k>= 0$ ; $\lambda = \alpha^2(n+k) - n$;\\
+too small value of K will lead to UKF ~ EKF . Too large - diverge\\
+$\sqrt{\Sigma} =  VD^{1/2}V^{-1}$ , we are sampling the gaussian along the eigen vectors
+of the covariance matrix. \\
+$$\bar\mu_t = \sum_{1 = 0}^{2n}w^{[i]}g(X^{[i]})$$
+$$\bar\Sigma_t = \sum_{1 = 0}^{2n}w^{[i]}(g(X^{[i]}) - \bar\mu_t)(g(X^{[i]}) - \bar\mu_t)^T + R_t$$
 \end{document}
+
