@@ -1,5 +1,6 @@
 \documentclass{article}
 \usepackage{graphicx}
+\usepackage{hyperref}
 \usepackage{amsmath}
 \begin{document}
 Robotic SLAM 
@@ -149,5 +150,8 @@ $\sqrt{\Sigma} =  VD^{1/2}V^{-1}$ , we are sampling the gaussian along the eigen
 of the covariance matrix. \\
 $$\bar\mu_t = \sum_{1 = 0}^{2n}w^{[i]}g(X^{[i]})$$
 $$\bar\Sigma_t = \sum_{1 = 0}^{2n}w^{[i]}(g(X^{[i]}) - \bar\mu_t)(g(X^{[i]}) - \bar\mu_t)^T + R_t$$
+\section{Links and references}
+Webpage from Syrill Stachniss can be found \href{http://ais.informatik.uni-freiburg.de/teaching/ws13/mapping/}{here}\\
+\href{https://pythonrobotics.readthedocs.io}{pythonrobotics}
 \end{document}
 
