@@ -1,7 +1,6 @@
 \documentclass{article}
 \usepackage{graphicx}
 \usepackage{caption}
-\usepackage{subcaption}
 \usepackage{subfig}
 \usepackage{hyperref}
 \usepackage{amsmath}
@@ -158,15 +157,20 @@ $$\bar\Sigma_t = \sum_{1 = 0}^{2n}w^{[i]}(g(X^{[i]}) - \bar\mu_t)(g(X^{[i]}) - \
 SLAM problems can make one of the types of maps
 \begin{itemize}
     \item \textbf{Feature Based Maps:} Maps is repsented by a few lanndmarks. Advantage of this type of maps is the space time complexity can be smaller compared to Volumetric Maps. On the downside, we have to implement a feature detector - i.e. observations are not directly used in this method. 
-    \includegraphics[width = \linewidth]{./feature_maps.jpeg}
+        \begin{figure}
+            
+            \includegraphics[width = \linewidth]{./feature_maps.jpeg}
+            \caption{Feature map imposed over victoria park}
+        \end{figure}
+
 \item \textbf{Volumetric Maps:} Volumetric Maps on the other hand uses all observations and represent the map using a 3D(lidar point cloud) or 2D(range sensor) grid. Occupancy is often shown with a black pixel and free areas are white. Unseen areas are marked with grey. Feature based maps are used in kalman filter implementations, Particle filter based approaches use Grid mapping  
-    \begin{figure}
-    \hfill
-    \subfigure[Title A]{\includegraphics[width=5cm]{./3dGrid.jpeg}}
-    \hfill
-    \subfigure[Title B]{\includegraphics[width=5cm]{./gridMap.png}}
-    \hfill
-    \caption{Title for both}
+    \begin{figure}%
+    \centering
+    \subfloat[3D grid map from lidar point cloud]{{\includegraphics[width=0.32\linewidth]{./3dGrid.jpeg} }}%
+    \qquad
+    \subfloat[Occupancy Grid Map]{{\includegraphics[width=0.6\linewidth]{./gridMap.png} }}%
+    \caption{Volumetric Maps}%
+    \label{fig:example}%
     \end{figure}
 \end{itemize}
 
