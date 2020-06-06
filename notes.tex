@@ -1,5 +1,8 @@
 \documentclass{article}
 \usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{subfig}
 \usepackage{hyperref}
 \usepackage{amsmath}
 \begin{document}
@@ -150,7 +153,25 @@ $\sqrt{\Sigma} =  VD^{1/2}V^{-1}$ , we are sampling the gaussian along the eigen
 of the covariance matrix. \\
 $$\bar\mu_t = \sum_{1 = 0}^{2n}w^{[i]}g(X^{[i]})$$
 $$\bar\Sigma_t = \sum_{1 = 0}^{2n}w^{[i]}(g(X^{[i]}) - \bar\mu_t)(g(X^{[i]}) - \bar\mu_t)^T + R_t$$
+\section{Grid Maps}
+
+SLAM problems can make one of the types of maps
+\begin{itemize}
+    \item \textbf{Feature Based Maps:} Maps is repsented by a few lanndmarks. Advantage of this type of maps is the space time complexity can be smaller compared to Volumetric Maps. On the downside, we have to implement a feature detector - i.e. observations are not directly used in this method. 
+    \includegraphics[width = \linewidth]{./feature_maps.jpeg}
+\item \textbf{Volumetric Maps:} Volumetric Maps on the other hand uses all observations and represent the map using a 3D(lidar point cloud) or 2D(range sensor) grid. Occupancy is often shown with a black pixel and free areas are white. Unseen areas are marked with grey. Feature based maps are used in kalman filter implementations, Particle filter based approaches use Grid mapping  
+    \begin{figure}
+    \hfill
+    \subfigure[Title A]{\includegraphics[width=5cm]{./3dGrid.jpeg}}
+    \hfill
+    \subfigure[Title B]{\includegraphics[width=5cm]{./gridMap.png}}
+    \hfill
+    \caption{Title for both}
+    \end{figure}
+\end{itemize}
+
 \section{Links and references}
+
 Webpage from Syrill Stachniss can be found \href{http://ais.informatik.uni-freiburg.de/teaching/ws13/mapping/}{here}\\
 \href{https://pythonrobotics.readthedocs.io}{pythonrobotics}
 \end{document}
