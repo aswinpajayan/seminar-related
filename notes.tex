@@ -160,7 +160,7 @@ SLAM problems can make one of the types of maps
         \begin{figure}
             
             \includegraphics[width = \linewidth]{./feature_maps.jpeg}
-            \caption{Feature map imposed over victoria park}
+            \caption{Feature map overlayed on victoria park}
         \end{figure}
 
 \item \textbf{Volumetric Maps:} Volumetric Maps on the other hand uses all observations and represent the map using a 3D(lidar point cloud) or 2D(range sensor) grid. Occupancy is often shown with a black pixel and free areas are white. Unseen areas are marked with grey. Feature based maps are used in kalman filter implementations, Particle filter based approaches use Grid mapping  
@@ -172,6 +172,19 @@ SLAM problems can make one of the types of maps
     \caption{Volumetric Maps}%
     \label{fig:example}%
     \end{figure}
+\end{itemize}
+
+\subsection{Representation - Occupancy Grid Map}
+ The \textbf{Occupancy grid map} partitions the space into finitely many grid cells. $m = \{m_i\} \ni $ every $m_i$ forms a binary random variable . Size of grid cell is a free parameter which decides the trade of between computational complexity and approximation Error. 
+\begin{itemize}
+    \item $p(m_i) \to 1 \Rightarrow $ high confidence that grid cell is occupied
+    \item $p(m_i) \to 0 \Rightarrow $ high confidence that grid cell is free
+    \item $p(m_i) \to 0.5 \Rightarrow $ no information about occupancy of grid cell
+\end{itemize}
+\subsection{assumptions}
+\begin{itemize}
+        \item A grid is either fully occupied or fully free.
+            \item Conditional independence of grid cells
 \end{itemize}
 
 \section{Links and references}
