@@ -181,15 +181,49 @@ SLAM problems can make one of the types of maps
     \item $p(m_i) \to 0 \Rightarrow $ high confidence that grid cell is free
     \item $p(m_i) \to 0.5 \Rightarrow $ no information about occupancy of grid cell
 \end{itemize}
-\subsection{assumptions}
+\textbf{Problem statement:} calculate the posterior $p(m|z_{1:t},x_{1:t})$ \\
+\newline
+\textbf{Assumptions:}
 \begin{itemize}
         \item A grid is either fully occupied or fully free.
-            \item Conditional independence of grid cells
+        \item Conditional independence of grid cells i.e.  $p(m) = \prod  p(m_i)$
+\end{itemize}
+\subsection{Algorithm}
+Log odds is defined as $$l_o = log\frac{p(m_i)}{1 - p(m_i)}$$ 
+$$ p(m_i) = 1 - \frac{1}{1+exp(l_o)}$$
+We are hunting for the posterior $p(m_i|z_{1:t},x_{1:t})$. If we express this posterior in odds form , we have 
+
+$$o_{t,i} = \frac{p(m_i|z_{1:t},x{1:t})}{p(\neg m_i | z_{1:t},x{1:t})}$$
+$$= \frac{p(m_i|z_t,x_t)}{p(\neg m_i|z_t,x_t)} . \frac{p(m_i| z_{1:t-1},x_{1:t-1})}{p(\neg m_i| z_{1:t-1},x_{1:t-1})} . \frac{p(\neg m_i)}{p(m_i)}$$
+
+In log odds form 
+$$l_{t,i} = inverse\_sensor\_model + l_{t-1,i} - l_o$$
+
+In each step we will update only the grids which are in the perception range of the sensor at that particular time instant 
+
+\subsection{Inverse Sensor Model} 
+\textbf{inverse\_sensor\_model:} is the implementation of inverse measurement model $p(m_i| z_t,x_t)$ in log odds form.
+
+\subsection{Scan Matching}
+
+"The assumption that poses is known is fundamentally flawed". If we use the pose from raw odometry data the grid map which we recieve is not generally usable. 
+
+"\textbf{Scan-matching} tries to incrementally align two scans or a map to scan without revisiting the past/map. Some common methods used for scan matching - Iterative Closest point match, RANSAC for outlier rejection . A standard cost function is given below 
+
+$${\displaystyle x_t^* = {\underset {x_t}{\operatorname {arg\,max} }}\,\{p(z_t|x_t,m_{t-1})p(x_t | u_{t-1},x_{t-1}^*)\}}$$
+
+\subsection{Summary}
+\begin{itemize}
+    \item Occupancy Grid maps are used in conjuction with Particle filter based SLAM, feature based maps are used in kalman filter based SLAM.
+    \item Occupancy Grid map by itself is not a SLAM algorithm. It assumes known poses. 
+    \item Scan matching is used to build usable maps . 
 \end{itemize}
 
-\section{Links and references}
 
-Webpage from Syrill Stachniss can be found \href{http://ais.informatik.uni-freiburg.de/teaching/ws13/mapping/}{here}\\
+
+
+\section{Links and references}
+Webpage from  Prof. Syrill Stachniss can be found \href{http://ais.informatik.uni-freiburg.de/teaching/ws13/mapping/}{here}\\
 \href{https://pythonrobotics.readthedocs.io}{pythonrobotics}
 \end{document}
 
