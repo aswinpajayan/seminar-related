@@ -1,9 +1,11 @@
 \documentclass{article}
 \usepackage{graphicx}
 \usepackage{caption}
+\usepackage{xcolor}
 \usepackage{subfig}
 \usepackage{hyperref}
 \usepackage{amsmath}
+\usepackage{scrextend}
 \begin{document}
 Robotic SLAM 
 \section{Introduction}
@@ -162,7 +164,7 @@ SLAM problems can make one of the types of maps
             \caption{Feature map overlayed on victoria park}
         \end{figure}
 
-\item \textbf{Volumetric Maps:} Volumetric Maps on the other hand uses all observations and represent the map using a 3D(lidar point cloud) or 2D(range sensor) grid. Occupancy is often shown with a black pixel and free areas are white. Unseen areas are marked with grey. Feature based maps are used in kalman filter implementations, Particle filter based approaches use Grid mapping  
+\item \textbf{Volumetric Maps:} Volumetric Maps on the other hand uses all observations and represent the map using a 3D(lidar point cloud) or 2D(range sensor) grid. Occupancy is often shown with a black pixel and free areas are white. Unseen areas are marked with grey. Feature based maps are used in kalman filter implementations, Particle filter based approaches use  Grid mapping and sometimes feature based maps. 
     \begin{figure}%
     \centering
     \subfloat[3D grid map from lidar point cloud]{{\includegraphics[width=0.32\linewidth]{./3dGrid.jpeg} }}%
@@ -237,8 +239,62 @@ $${\displaystyle x_t^* = {\underset {x_t}{\operatorname {arg\,max} }}\,\{p(z_t|x
     \includegraphics[width = \linewidth]{./importance_sampling.png}
     \caption{Generating samples from arbitrary distribution using importance sampling}
 \end{figure}
+\subsection{Rao-Blackwellization for SLAM}
 
+SLAM problem is represented as finding the posterior
+$$p(x_{1:t},m_{1,x},m_{1,y},\dots{},m_{M,x},m_{M,y})$$
+Particle filters are ideal for low dimensional problems . Hence cant be directly used to solve the SLAM problem(dimension 2N + 3). One approach is to estimate the pose using particle filter and then computing map . Mathematically this factorisation can be expressed as 
+\begin{align*}
+    p(a,b) & = p(b|a).p(a)\\
+    \sim p(x_{0:t},m_{1:M}|z_{1:t},u_{1:t}) & =  p(x_{0:t}|z_{1:t},u_{1:t}).p(m_{1:M}|z_{1:t},u_{1:t})\\
+    & =  p(x_{0:t}|z_{1:t},u_{1:t}) \Pi p(m_{i}|z_{1:t},u_{1:t})\\
+\end{align*}
+Effectively we have split it into a path posterior and a map posterior. each particle respresents a path hypothesis and it has an assosicated map with it. Splitting $p(m_{1:M})$ into $\Pi p(m_i)$ reduces the computational complexity further, each of this is calculated by a 2x2 EKF. 
+\newline
+\newline 
+Each particle maintains M 2x2 EKF along with the 3 pose variables 
+\begin{figure}
+    \includegraphics[width = \linewidth]{./RBPF_particles.png}
+    \caption{Particle structure in RBPF-slam}
+\end{figure}
+\subsection{Algorithm}
+\textit{from slides by Prof Syrill Stachniss}\\
+\textbf{FastSLAM1.0\_known\_correspondence($z_t,c_t,u_t,X_{t-1}$):}\\
+\begin{textit}
+    for k = 1 to N do    \hfill      \textcolor{gray}{loop through N particles} \\
+    \begin{addmargin}[1em]{2em}
+        Let $\langle x_{t-1}^{[k]}, \langle \mu_{1,t-1}^{[k]},\Sigma_{1,t-1}^{[k]} \rangle \dots{} \langle \mu_{M,t-1}^{[k]},\Sigma_{M,t-1}^{[k]} \rangle \rangle$ be a particle in $X_{t-1}$ \\
     
+        $x_t^{[k]} \sim p(x_t | x_{t-1},u_{t})$  \hfill \textcolor{gray}{sample pose}\\
+
+        $j = c_t$ \hfill \textcolor{gray}{observed feature with correspondence}\\
+        if feature j never seen before:
+        \begin{addmargin}[1em]{2em}
+            $\mu_{j,t}^{[k]} = h^{-1}(z_t,x_t^{[k]})$ \hfill \textcolor{gray}{initialize mean}\\
+            $H = h^{'}(\mu_{j,t}^{[k]},x_t^{[k]})$ \hfill \textcolor{gray}{calculate Jacobian}\\
+            $\Sigma_{j,t}^{[k]} = H^{-1}Q_t(H^{-1})^T$ \hfill \textcolor{gray}{initialize covariance}\\
+            $w^[k] = p_0$ \hfill \textcolor{gray}{default importance weight}
+        \end{addmargin}
+        else
+        \begin{addmargin}[1em]{2em}
+            $\hat z^{[k]} = h(\mu_{j,t-1}^{[k]},x_t^{[k]})$ \hfill  \textcolor{gray}{measurement prediction}\\
+            $H = h^{'}(\mu_{j,t-1}^{[k]},x_t^{[k]})$ \hfill \textcolor{gray}{calculate Jacobian}\\
+            $Q = H\Sigma_{j,t-1} H^T + Q_t$ \hfill \textcolor{gray}{measurement Covariance} \\
+            $K = \Sigma_{j,t-1}^{[k]}H^T Q^{-1}$ \hfill \textcolor{gray}{calculate Kalman gain} \\
+            $\mu_{j,t}^{[k]} = \mu_{j,t-1}^{[k]} + K (z_t - \hat z ^{[k]})$  \hfill \textcolor{gray}{update mean} \\
+            $\Sigma_{j,t}^{[k]} =(I -KH)\Sigma_{j,t-1}^{[k]}$ \hfill \textcolor{gray}{update covariance}\\
+            $w^{[k]} = | 2\pi Q|^{-\frac{1}{2}} exp\{-\frac{1}{2}(z_t - \hat z^{[k]})^T Q^{-1} (z_t - \hat z^{[k]})\}$\\
+        \end{addmargin}
+        endif\\
+        for all unobserved features $j^{'} $ do: \\
+           \hspace*{1cm} $\langle \mu_{j,t}^{[k]},\Sigma_{j,t}^{[k]}\rangle =  \langle \mu_{j,t-1}^{[k]},\Sigma_{j,t-1}^{[k]}\rangle$ \hfill \textcolor{gray}{leave unchanged}\\
+           end for \\
+        $X_t = resample \langle x_{t-1}^{[k]}, \langle \mu_{1,t-1}^{[k]},\Sigma_{1,t-1}^{[k]} \rangle \dots{} ,w^{[k]} \rangle$
+    \end{addmargin}
+
+\end{textit}
+
+
 \section{Links and references}
 Webpage from  Prof. Syrill Stachniss can be found \href{http://ais.informatik.uni-freiburg.de/teaching/ws13/mapping/}{here}\\
 \href{https://pythonrobotics.readthedocs.io}{pythonrobotics}
