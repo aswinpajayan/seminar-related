@@ -158,7 +158,6 @@ SLAM problems can make one of the types of maps
 \begin{itemize}
     \item \textbf{Feature Based Maps:} Maps is repsented by a few lanndmarks. Advantage of this type of maps is the space time complexity can be smaller compared to Volumetric Maps. On the downside, we have to implement a feature detector - i.e. observations are not directly used in this method. 
         \begin{figure}
-            
             \includegraphics[width = \linewidth]{./feature_maps.jpeg}
             \caption{Feature map overlayed on victoria park}
         \end{figure}
@@ -219,9 +218,27 @@ $${\displaystyle x_t^* = {\underset {x_t}{\operatorname {arg\,max} }}\,\{p(z_t|x
     \item Scan matching is used to build usable maps . 
 \end{itemize}
 
+\section{Fast SLAM}
+\subsection{Review of Particle filters}
+\begin{itemize}
+        \item Non-parametric recursive Bayes filter
+        \item uses samples to represent belief distribution
+        \item as opposed to kalman filter family it can model multi modal distributions. 
+        \item Uses importance sampling principle to draw samples from arbitrary distributions
+            \begin{itemize}
+                \item sampling from proposal distribution : 
+                    $$x_t^{[j]} \sim \pi(x_t|x_{t-1},u_{t-1})$$
+                \item Importance weighting :
+                    $$ w_t^{[j]} = \frac{target(x_t^{[j]})}{proposal(x_t^{[j]})} = p(z_t|x_t) $$
+                \item Resampling : Draw sample $i$ with probability $w_t^{[j]}$
+            \end{itemize}
+\end{itemize}
+\begin{figure}
+    \includegraphics[width = \linewidth]{./importance_sampling.png}
+    \caption{Generating samples from arbitrary distribution using importance sampling}
+\end{figure}
 
-
-
+    
 \section{Links and references}
 Webpage from  Prof. Syrill Stachniss can be found \href{http://ais.informatik.uni-freiburg.de/teaching/ws13/mapping/}{here}\\
 \href{https://pythonrobotics.readthedocs.io}{pythonrobotics}
