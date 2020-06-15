@@ -1,0 +1,64 @@
+%%=====================================================================================
+%%
+%%       Filename:  algo.tex
+%%
+%%    Description:  
+ %%
+%%        Version:  1.0
+%%        Created:  06/10/2020
+%%       Revision:  none
+%%
+%%         Author:  YOUR NAME (), 
+%%   Organization:  
+%%      Copyright:  
+%%
+%%          Notes:  
+%%                
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{xcolor}
+\usepackage{subfig}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{scrextend}
+\begin{document}
+%=====================================================================================
+\textit{from slides by Prof Syrill Stachniss}\\
+\textbf{FastSLAM1.0\_known\_correspondence($z_t,c_t,u_t,X_{t-1}$):}\\
+\begin{textit}
+    for k = 1 to N do    \hfill      \textcolor{gray}{loop through N particles} \\
+    \begin{addmargin}[1em]{2em}
+        Let $\langle x_{t-1}^{[k]}, \langle \mu_{1,t-1}^{[k]},\Sigma_{1,t-1}^{[k]} \rangle \dots{} \langle \mu_{M,t-1}^{[k]},\Sigma_{M,t-1}^{[k]} \rangle \rangle$ be a particle in $X_{t-1}$ \\
+    
+        $x_t^{[k]} \sim p(x_t | x_{t-1},u_{t})$  \hfill \textcolor{gray}{sample pose}\\
+
+        $j = c_t$ \hfill \textcolor{gray}{observed feature with correspondence}\\
+        if feature j never seen before:
+        \begin{addmargin}[1em]{2em}
+            $\mu_{j,t}^{[k]} = h^{-1}(z_t,x_t^{[k]})$ \hfill \textcolor{gray}{initialize mean}\\
+            $H = h^{'}(\mu_{j,t}^{[k]},x_t^{[k]})$ \hfill \textcolor{gray}{calculate Jacobian}\\
+            $\Sigma_{j,t}^{[k]} = H^{-1}Q_t(H^{-1})^T$ \hfill \textcolor{gray}{initialize covariance}\\
+            $w^[k] = p_0$ \hfill \textcolor{gray}{default importance weight}
+        \end{addmargin}
+        else
+        \begin{addmargin}[1em]{2em}
+            $\hat z^{[k]} = h(\mu_{j,t-1}^{[k]},x_t^{[k]})$ \hfill  \textcolor{gray}{measurement prediction}\\
+            $H = h^{'}(\mu_{j,t-1}^{[k]},x_t^{[k]})$ \hfill \textcolor{gray}{calculate Jacobian}\\
+            $Q = H\Sigma_{j,t-1} H^T + Q_t$ \hfill \textcolor{gray}{measurement Covariance} \\
+            $K = \Sigma_{j,t-1}^{[k]}H^T Q^{-1}$ \hfill \textcolor{gray}{calculate Kalman gain} \\
+            $\mu_{j,t}^{[k]} = \mu_{j,t-1}^{[k]} + K (z_t - \hat z ^{[k]})$  \hfill \textcolor{gray}{update mean} \\
+            $\Sigma_{j,t}^{[k]} =(I -KH)\Sigma_{j,t-1}^{[k]}$ \hfill \textcolor{gray}{update covariance}\\
+            $w^{[k]} = | 2\pi Q|^{-\frac{1}{2}} exp\{-\frac{1}{2}(z_t - \hat z^{[k]})^T Q^{-1} (z_t - \hat z^{[k]})\}$\\
+        \end{addmargin}
+        endif\\
+        for all unobserved features $j^{'} $ do: \\
+           \hspace*{1cm} $\langle \mu_{j,t}^{[k]},\Sigma_{j,t}^{[k]}\rangle =  \langle \mu_{j,t-1}^{[k]},\Sigma_{j,t-1}^{[k]}\rangle$ \hfill \textcolor{gray}{leave unchanged}\\
+           end for \\
+        $X_t = resample \langle x_{t-1}^{[k]}, \langle \mu_{1,t-1}^{[k]},\Sigma_{1,t-1}^{[k]} \rangle \dots{} ,w^{[k]} \rangle$
+    \end{addmargin}
+
+\end{textit}
+
+
+\end{document}
