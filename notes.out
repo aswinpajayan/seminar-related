@@ -1,0 +1,23 @@
+\BOOKMARK [1][-]{section.1}{Introduction}{}% 1
+\BOOKMARK [2][-]{subsection.1.1}{What is SLAM}{section.1}% 2
+\BOOKMARK [2][-]{subsection.1.2}{Full Slam vs online SLAM}{section.1}% 3
+\BOOKMARK [2][-]{subsection.1.3}{Types of SLAM}{section.1}% 4
+\BOOKMARK [1][-]{section.2}{Bayes Filter}{}% 5
+\BOOKMARK [2][-]{subsection.2.1}{State Estimation}{section.2}% 6
+\BOOKMARK [2][-]{subsection.2.2}{Probability motion models}{section.2}% 7
+\BOOKMARK [2][-]{subsection.2.3}{Model for laser scanners}{section.2}% 8
+\BOOKMARK [1][-]{section.3}{Kalman filter Equations}{}% 9
+\BOOKMARK [2][-]{subsection.3.1}{Summary}{section.3}% 10
+\BOOKMARK [1][-]{section.4}{Extended Kalman Filter vs Unscented Kalman Filter}{}% 11
+\BOOKMARK [2][-]{subsection.4.1}{Strategy for chosing sampling points and weights for UKF}{section.4}% 12
+\BOOKMARK [1][-]{section.5}{Grid Maps}{}% 13
+\BOOKMARK [2][-]{subsection.5.1}{Representation - Occupancy Grid Map}{section.5}% 14
+\BOOKMARK [2][-]{subsection.5.2}{Algorithm}{section.5}% 15
+\BOOKMARK [2][-]{subsection.5.3}{Inverse Sensor Model}{section.5}% 16
+\BOOKMARK [2][-]{subsection.5.4}{Scan Matching}{section.5}% 17
+\BOOKMARK [2][-]{subsection.5.5}{Summary}{section.5}% 18
+\BOOKMARK [1][-]{section.6}{Fast SLAM}{}% 19
+\BOOKMARK [2][-]{subsection.6.1}{Review of Particle filters}{section.6}% 20
+\BOOKMARK [2][-]{subsection.6.2}{Rao-Blackwellization for SLAM}{section.6}% 21
+\BOOKMARK [2][-]{subsection.6.3}{Algorithm}{section.6}% 22
+\BOOKMARK [1][-]{section.7}{Links and references}{}% 23
