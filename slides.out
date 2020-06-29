@@ -1,10 +1,12 @@
 \BOOKMARK [2][]{Outline0.1}{What is SLAM}{}% 1
 \BOOKMARK [2][]{Outline0.2}{Objective}{}% 2
-\BOOKMARK [2][]{Outline0.3}{Block Diagram of Camera Driver}{}% 3
-\BOOKMARK [2][]{Outline0.4}{DLC384 Sensor}{}% 4
-\BOOKMARK [2][]{Outline0.5}{Camera Driver}{}% 5
-\BOOKMARK [2][]{Outline0.6}{Pin Configuration}{}% 6
-\BOOKMARK [2][]{Outline0.7}{FPGA Resources Used}{}% 7
-\BOOKMARK [2][]{Outline0.8}{Simulation Results}{}% 8
-\BOOKMARK [2][]{Outline0.9}{Future Work}{}% 9
-\BOOKMARK [2][]{Outline0.10}{References}{}% 10
+\BOOKMARK [2][]{Outline0.3}{Types of SLAM}{}% 3
+\BOOKMARK [2][]{Outline0.4}{Markov assumption and Recursive Bayesian estimate}{}% 4
+\BOOKMARK [2][]{Outline0.5}{Frameworks for recursive filter estimation}{}% 5
+\BOOKMARK [2][]{Outline0.6}{Particle Filters}{}% 6
+\BOOKMARK [2][]{Outline0.7}{Camera Driver}{}% 7
+\BOOKMARK [2][]{Outline0.8}{Pin Configuration}{}% 8
+\BOOKMARK [2][]{Outline0.9}{FPGA Resources Used}{}% 9
+\BOOKMARK [2][]{Outline0.10}{Simulation Results}{}% 10
+\BOOKMARK [2][]{Outline0.11}{Future Work}{}% 11
+\BOOKMARK [2][]{Outline0.12}{References}{}% 12

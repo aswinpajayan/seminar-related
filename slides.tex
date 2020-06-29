@@ -146,56 +146,81 @@ Indian Institute of Technology, Bombay\\ % Your institution for the title page
             \item \textbf{Particle Filter based approaches}
                 \begin{itemize}
                     \item Fast SLAM -Rao Blackwellised Particle Filter
+                        \begin{itemize}
+                            \item Augmented MCL
+                            \item Mixture MCL
+                        \end{itemize}
                 \end{itemize}
-                \begin{figure}[H]
-        \centering
-        \includegraphics[width = 100mm]{RBPF_SLAM.png}$^{1}$
-        \end{figure}
-    \end{itemize}
+       \end{itemize}
 \vfill
-\tiny Image Source:
-\newline \tiny{$^{1}$}https://www.opli.net/opli\_magazine/imaging/2017/sierra-olympic-introduces-world-first-true-hd-thermal-camera-jan-news/
-\newline \tiny{$^{2}$}https://in.element14.com/terasic-technologies/p0082/e22f17c6n-DEO-nano-dev-kit/dp/2076463
-\newline \tiny{$^{3}$}http://www.123-cctv.com/CCTV-Monitors/7-inch-Security-LCD-Monitor-with-VGA.html
 \end{frame}
 
 
-
-\begin{frame}{Components}
+\section{Types of SLAM}
+\begin{frame}{Types of SLAM}
     \begin{itemize}
-        \item Infrared Camera - DLC384 Long Wave Infrared Focal Plane Array 384X288 25um Uncooled Microbolometer.
-        \item FPGA - DEO-Nano Development Board.
-        \item Software - Quartus Prime Lite Edition.
-        \item Programming Language - Very High Speed Integrated Circuit Hardware Description Language (VHDL).
-    \end{itemize}
-\end{frame}
-
-
-\section{Block Diagram of Camera Driver}
-\begin{frame}{Block Diagram of Camera Driver}
-    \begin{figure}[H]
-        \centering
-        \includegraphics[width=\textwidth]{RBPF_particles.png}$^{2}$
-        \end{figure}
-\end{frame}
-
-
-\begin{frame}{Components of Camera Driver}
-    \begin{itemize}
-        \item DLC384 Sensor.
-        \item Camera Driver - 
+        \item Full SLAM vs online SLAM
         \begin{itemize}
-            \item PLL and DLC384 reading FSM.
-            \item Address Cal and Dual Port RAM.
-            \item DLC384 Controller.
-            \item ADC - Analog to Digital Converter.
+            \item Full SLAM $p(x_{0:T},m|u_{1:t},z_{1:t})$
+            \item Full SLAM $p(x_{t},m|u_{1:t},z_{1:t})$
         \end{itemize}
+        \item Feature Based SLAM vs Grid Based
+\begin{figure}
+     \centering
+        \begin{subfigure}[b]{0.4\textwidth}
+        % \centering
+        \hspace*{-10mm}
+        \includegraphics[height = 40mm,width = 60mm]{feature_maps.jpeg}
+        \end{subfigure}
+    ~
+        \begin{subfigure}[b]{0.4\textwidth}
+        \centering
+        \includegraphics[height = 40mm,width = 60mm]{gridMap.png}
+        \end{subfigure}
+    \end{figure}   
+
+        \item Active SLAM vs Passive SLAM
     \end{itemize}
 \end{frame}
 
 
-\section{DLC384 Sensor}
-\begin{frame}{DLC384 Sensor}
+\section{Markov assumption and Recursive Bayesian estimate}
+\begin{frame}{Recursive Bayesian Estimation}
+    \begin{itemize} 
+        \item \textbf{Markov assumption} : next state depends only on the present state
+            $$p(x_{t}|x_{0:t},u_{1:t}) = p(x_t | x_{t-1},u{t})$$
+        \item \textbf{Recursive Bayesian Estimation}
+\begin{align*}  
+    bel(x_t) & = p(x_t | z_{1:t},u_{1:t})\\
+    & = \eta p(z_t|x_t) \int_{x_{t-1}} p(x_t |x_{t-1},u_t) * bel(x_{t-1})dx_{t-1}
+ \end{align*}
+ we can split this into predict and update steps where\\
+ \textbf{Predict Step} 
+ $$\overline{bel(x_t)} =  \int_{x_{t-1}} p(x_t |x_{t-1},u_t) * bel(x_{t-1})dx_{t-1}$$
+ \textbf{Update Step} 
+ $$bel(x_t) =  \eta * p(z_t | x_t) * \overline{bel(x_t)}$$
+
+
+ \textbf{Bayes filter} recursive estimation is realised using kalman filter, Information Filter, particle filter etc.
+    \end{itemize}
+\end{frame}
+
+\section{Frameworks for recursive filter estimation}
+\begin{frame}{Kalman Filter Family}
+    Beliefs are represented in parametric form 
+    with mean vector $\mu_t$ and covariance matrix $\Sigma _t$ . Closed form expressions are available for belief propagation under certain cases
+
+    \begin{itemize}        
+        \item \textbf{Kalman Filter :} Assumes linear models(state transistion and measurement) and gaussian posterior
+        \item \textbf{Extended Kalman Filter :} Linearises the model and then applies normal KF
+        \item \textbf{Unscented Kalman Filter :} Samples a gaussian posterior from the resulting non linear transformation
+        \item \textbf{Information Filters :} Uses canonical representaion of Belief i.e. $\mu_{t}^{-1}$ and $\Sigma_{t}^{-1}$
+    \end{itemize}
+\end{frame}
+
+
+\section{Particle Filters}
+\begin{frame}{Particle Filter}
     \begin{itemize}
         \item This is a long Wave Infrared Focal Plane Array(IRFPA), 384X288, 25 um Uncooled Microbolometer. Spectral range of 8um~14um.
         \item DLC384 works in rolling shutter mode, meaning integration of one row at a time and simultaneous reading of previous row.
