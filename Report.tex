@@ -1,5 +1,6 @@
 \documentclass{article}
 \usepackage{graphicx}
+\usepackage{listings}
 \usepackage{caption}
 \usepackage{xcolor}
 \usepackage{subfig}
@@ -8,6 +9,10 @@
 \usepackage{scrextend}
 \begin{document}
 Robotic SLAM 
+\textbf{Aswin P Ajayan : 183079032} % Your name
+
+\tableofcontents
+\newpage
 \section{Introduction}
 Terms 
 
@@ -294,9 +299,193 @@ Each particle maintains M 2x2 EKF along with the 3 pose variables
 
 \end{textit}
 
+\section{Implementation in ROS (Particle Filter Localisation)}
+Robotic Operating system provides a framework for simulating and testing robotic algorithms and real world interaction. Platform used for simulation 
+\begin{itemize}
+        \item ROS melodic 
+        \item Ubuntu 18.04 (intel i3 3130 with radeon graphics)
+        \item ros gazebo for simulating physics
+        \item python 2.7
+\end{itemize}
+Out of the box, ROS still uses python2.7. \\
+\subsection{Creating a custom robot}
+Various robots available in default in ROS have two major issues. Platform portability, and unneseccary sensors which can bog down the system performance. To avoid this issues, a simple custom robot was made using UDRF - Universal Robot Description Framework. A good tutorial on making a small 2 wheeled robot is available at \href{https://www.theconstructsim.com/ros-projects-exploring-ros-using-2-wheeled-robot-part-1/}{the constructsim website} 
+\begin{figure}
+    \centering
+    \includegraphics[height=30mm]{./custom_robot.png}
+\end{figure}
+\begin{itemize}
+\item \textit{Universal Robot Description Format} provides an easy way to create a custom meshes for a robot. The motion model and sensor model are realised using the gazebo plugins. The robot was created using xacro files: which stands for XML Macros. 
+\item sensor: Laser range finder with standard deviation 0.01 and gaussian model was used
+\end{itemize}
+\subsection{Sensor Model}
+Maximum Likelihood field was chosen as the sensor model. Field was precomputed. Field was computed as a convolution between kernel and point landmarks represented a impulses. \\
+World was created with cylinders as landmarks. Each cylinder had a radius of 0.2m. So a kernel was created taking into account the shape and the radius
 
-\section{Links and references}
-Webpage from  Prof. Syrill Stachniss can be found \href{http://ais.informatik.uni-freiburg.de/teaching/ws13/mapping/}{here}\\
-\href{https://pythonrobotics.readthedocs.io}{pythonrobotics}
+\begin{lstlisting}[language=Python]
+
+def get_kernel(k_size, radius, std):
+    """function to generate kernel to produce
+    discretised likelihood grid we can convolve
+    this kernel with landmarks(ground_truth /
+    observed to produce discretised likelihood field)
+
+    :k_size : kernel size (-k_size:k_size) (scaled)
+    :radius : radius of landmark
+    :std    : standard deviation of meaurement model
+    returns: flat top gaussian kernel  """
+
+    cov = np.diag([std ** 2, std ** 2])
+    mean = np.array([0, 0], dtype=np.float)
+    x_axis = np.arange(-k_size, k_size)
+    y_axis = np.arange(-k_size, k_size)
+    x_values, y_values = np.meshgrid(x_axis, y_axis)
+    grid = np.empty(x_values.shape + (2,))
+    grid[:, :, 0] = x_values
+    grid[:, :, 1] = y_values
+    cov_inv = np.linalg.inv(cov)
+    z_norm = np.einsum('...k,kl,...l->...', grid - mean, cov_inv, grid - mean)
+    lim = radius ** 2 / (2 * std * std)
+    z_norm[z_norm < lim] = 0
+    z_norm[z_norm > lim] = z_norm[z_norm > lim] - lim
+    kernel = np.exp(-0.5*z_norm)
+    kernel = kernel / np.amax(kernel)
+    return kernel
+
+
+\end{lstlisting}
+\begin{figure}
+
+
+     \centering
+        \includegraphics[width = \linewidth]{kernel.png}
+    \end{figure}   
+
+*einstein summation can speed up the process. Speed is not really much of a concern as kernel calculation is a one time job. \\
+Kernel is convolved with point landmark map to get the ML field 
+\begin{figure}
+\centering
+   \includegraphics[width = \linewidth]{./ML field.png}
+\end{figure}   
+
+\subsection{Resampling approaches}
+    Various Resampling approaches were tried out -
+    \begin{itemize}
+        \item \textbf{Fitness proportion sampling:} Used the default resampler available in numpy \\
+            \textit{numpy.random.choice(particles, num=N, p=weights)}
+            \begin{lstlisting}[language=Python]
+            indeces = np.random.choice(indeces, NUM, p=weights)
+            \end{lstlisting}
+        \item \textbf{Roulette wheel selection :} Fitnesss values arranged as CDF around a wheel and a point is chosen at random
+        \item \textbf{Stochastic Universal sampling :} Roulette wheel selection will be dominated by a few particles of highest fit. Some particles with high fitness values might be shadowed by the most fit members. This can result is global localisation failure. To avoid this SUS was tried. Though it reduces localisation failure, it can still result in localisation failure  
+            \begin{lstlisting}[language=Python]
+def lv_sampler(weights):
+    """ 
+    function to perform low variance sampling 
+    taken from S thruns Book
+    :weights: importance weights of corresponding particles
+    :returns: indeces 
+    """
+    indeces = []
+    NUM = np.float(len(weights))
+    r = np.random.uniform(0, 1 / NUM)
+    c = weights[0]
+    i = 0
+    for m in np.arange(NUM):
+        u = r + (m - 1) * (1 / NUM)
+        while(u > c):
+            i += 1
+            c += weights[i]
+        indeces.append(i)
+    return np.array(indeces, dtype='int')
+
+
+            \end{lstlisting}
+    \end{itemize}
+
+    \begin{figure}
+        \includegraphics[height = 80mm]{./rl_multi.jpg}
+        \caption{Particle structure in RBPF-slam}
+    \end{figure}
+
+
+\subsection{simulation results}
+Simulation results obtained where just satisfactory. 
+Robot was initialised with some random samples and was able to localise under motion noise and a relatively bad motion model.
+\begin{itemize}
+        \item \href{https://github.com/aswinpajayan/seminar-related/blob/master/gifs/MCL-final.gif}{Particle localisation}
+
+        \item  \href{https://github.com/aswinpajayan/seminar-related/blob/master/gifs/sensorScans.gif}{Super imposed of ML field}
+    \end{itemize}
+
+The main point of concern is that the fittest particle is dominating. This might lead to global localisation failure. A condition in which all the particles corresponds to a single wrong state. This is handled to a certain extend by artificially adding noise to the particles, but better approaches are available in literature
+\subsection{suggested improvements}
+    \begin{itemize}
+        \item Increasing the number of particles. Simualtions are quite heavy and the number of particles was limited by laptop hardware
+        \item Better sampling strategy : Current resampling stratgy favours high fit particles to the extent that low fitness particles are often lost. Need a better resampling strategy to improve sampling.
+        \item Augmented MCL to counter globalisation failures. Right now globalisation failure is countered by artificially inflating the sensor noise.
+        \item Accurate kinematic model for the robot
+    \end{itemize}
+
+\subsection{Code Organisation}
+    The entire code can be found at github \href{https://github.com/aswinpajayan/localisation-mcl/tree/touchups}{link} in branch touchups
+     \begin{itemize}
+         \item ROS uses python 2.7. caktin\_make build system is used to build custom messages
+         \item robot mesh and model descriptions are present in folder urdf
+         \item launch file is used to initialise various ros nodes - present in launch folder (no\_ui\_spawn.launch)
+         \item All scripts are found in scripts folder
+
+            \begin{itemize}
+                \item scripts/robot\_model.py contains kinematic and sensor models
+                    \item scripts/read\_sensor.py contains node to handle hokuyo laser range finder and correspondence algorithm 
+                    \item scripts/lv\_resample.py contains various resampling algorithms used
+                    \item scripts/my\_MCL.py handles robot localisation
+            \end{itemize}
+     \end{itemize}
+\begin{figure}
+        \includegraphics[width = 120mm]{./rosgraph.png}
+        \caption{Ros graph generated using rqt\_graph}
+    \end{figure}
+
+
+
+\section{Future Work}
+\begin{itemize}
+    \item Perfect Localisation using Augmented MCL and low variance resampling
+    \item Move on to implementing RBPF SLAM in ROS 
+    \item Running ROS in client server mode offloading heavy computations to lab machine 
+\end{itemize}
+
+\section{References and Links}
+\begin{itemize}
+\item Probabilistic Robotics by Sebastian Thrun
+\item \href{https://www.youtube.com/playlist?list=PLgnQpQtFTOGQrZ4O5QzbIHgl3b1JHimN\_}{SLAM Lectures by Prof Cyrill Stachniss}
+\item \href{https://www.theconstructsim.com/ros-projects-exploring-ros-using-2-wheeled-robot-part-1/}{URDF tutorials by construct sim}
+\item \href{http://wiki.ros.org/ROS/Tutorials}{ROS wiki}
+\item Simultaneous Localisation and Mapping (SLAM): Part I The Essential Algorithms By Hugh Durrant-Whyte
+\item Webpage from  Prof. Syrill Stachniss can be found \href{http://ais.informatik.uni-freiburg.de/teaching/ws13/mapping/}{here}\\
+\item A collection of various robotics algorithms    \href{https://pythonrobotics.readthedocs.io}{pythonrobotics}
+
+\item github repository \url{https://github.com/aswinpajayan/seminar-related.git}
+\end{itemize}
+
+\section{Appendix}
+\subsection{PF algorithm}
+
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]{./PF.png}$^{1}$
+    \end{figure}
+
+\subsection{Augmented MCL algorithm}
+    \begin{figure}
+        \centering
+        \includegraphics[height = 80mm]{./Augmented.png}$^{1}$
+    \end{figure}
+
+
+
+
 \end{document}
 
