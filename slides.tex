@@ -35,6 +35,7 @@
 \usepackage{animate}
 \usepackage{caption}
 \usepackage{subcaption}
+\usepackage{hyperref}
 
 % As well as themes, the Beamer class has a number of color themes
 % for any slide theme. Uncomment each of these in turn to see how it
@@ -148,7 +149,6 @@ Indian Institute of Technology, Bombay\\ % Your institution for the title page
                     \item Fast SLAM -Rao Blackwellised Particle Filter
                         \begin{itemize}
                             \item Augmented MCL
-                            \item Mixture MCL
                         \end{itemize}
                 \end{itemize}
        \end{itemize}
@@ -301,14 +301,14 @@ Now each particle respresents a path hypothesis and it has an assosicated map wi
 \begin{frame}{Creating a custom robot}
     \begin{figure}
         \centering
-        \includegraphics[width=\textwidth]{RBPF_particles.png}$^{6}$
+        \includegraphics[height=30mm]{./custom_robot.png}
     \end{figure}
     \begin{itemize}
     \item \textit{Universal Robot Description Format} provides an easy way to create a custom meshes for a robot. The motion model and sensor model are realised using the gazebo plugins. The robot was created using xacro files: which stands for XML Macros. 
     \item sensor: Laser range finder with standard deviation 0.01 and gaussian model was used
     \end{itemize}
     \vfill
-    \tiny{$^{3}$} Source: theconstructsim.com
+    \tiny{$^{3}$} https://www.theconstructsim.com/ros-projects-exploring-ros-using-2-wheeled-robot-part-1/
 \end{frame}
 
 \subsection{Creating a motion model}
@@ -361,190 +361,97 @@ Now each particle respresents a path hypothesis and it has an assosicated map wi
     \end{itemize}
 \end{frame}
 
-\section{Simulations}
-\begin{frame}{Simulations}
+\begin{frame}{Resampling cont..}
     \begin{figure}
-        \centering
-        \includegraphics[width=\textwidth]{RBPF_SLAM.png}$^{7}$
+        \includegraphics[height = 80mm]{./rl_multi.jpg}
+        \caption{Particle structure in RBPF-slam}
     \end{figure}
 \end{frame}
 
 
+\section{Simulations}
+\begin{frame}{Simulations}
+
+    \begin{itemize}
+        \item \href{https://github.com/aswinpajayan/seminar-related/blob/master/gifs/MCL-final.gif}{Particle localisation}
+        \item \href{https://github.com/aswinpajayan/seminar-related/blob/master/gifs/sensorscans.gif}{Super imposed of ML field}
+    \end{itemize}
+\end{frame}
+
+
+\begin{frame}{ROS node architecture}
+\begin{figure}
+        \includegraphics[width = 120mm]{./rosgraph.png}
+        \caption{Ros graph generated using rqt\_graph}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Physics simulations with gazebo}
+\begin{figure}
+    \includegraphics[width = 120mm]{./physics.png}
+        \caption{Robot kinematics and sensor physics is taken care of by gazebo}
+    \end{figure}
+\end{frame}
 % \begin{frame}{DLC384 Reading FSM Diagram}
 %      \begin{figure}
 %         \includegraphics[width = 100mm]{DLC384-reading-FSM.png}$^{8}$
 %     \end{figure}   
 % \end{frame}
 
-
-\begin{frame}{Analysis of DLC384 Reading FSM Diagram and clock diagram from data sheet}
-     \begin{figure}
-     \centering
-        \begin{subfigure}[b]{0.4\textwidth}
-        % \centering
-        \hspace*{-10mm}
-        \includegraphics[height = 60mm,width = 60mm]{RBPF_SLAM.png}
-        \end{subfigure}
-    ~
-        \begin{subfigure}[b]{0.4\textwidth}
-        \centering
-        \includegraphics[height = 60mm,width = 60mm]{RBPF_SLAM.png}$^{8}$
-        \end{subfigure}
-    \end{figure}   
+\section{suggested improvements}
+\begin{frame}{Suggested Improvements}
+    \begin{itemize}
+        \item Increasing the number of particles. Simualtions are quite heavy and the number of particles was limited by laptop hardware
+        \item Better sampling strategy : Current resampling stratgy favours high fit particles to the extent that low fitness particles are often lost. Need a better resampling strategy to improve sampling.
+        \item Augmented MCL to counter globalisation failures. Right now globalisation failure is countered by artificially inflating the sensor noise.
+        \item Accurate kinematic model for the robot
+    \end{itemize}
 \end{frame}
 
-
-\begin{frame}{DLC384 Reading FSM}
+\section{Code Organisation}
+\begin{frame}{Code Organisation}
+    The entire code can be found at github \href{https://github.com/aswinpajayan/localisation-mcl/tree/touchups}{link} in branch touchups
      \begin{itemize}
-         \item DLC384 Reading FSM is a finite state machine having 4 states, a) State\_Reset; b) State\_INT; c) State\_EN; d) State\_Read.
-         \item States (c) and (d) are two main states, in which FSM toggle’s maximum amount of time.
-         \item In state (C) FSM waits for “VOUT\_EN” signal from DLC384 which is expected to arrive after 18.5 cycles from “INT” falling edge.
-         \item In State (d) “INT” signal is high( for 384 cycles) so that integration of next row pixels can be done. Also since VOUT\_EN is high so simultaneously current row’s pixels value is captured at every rising edge of clock.
+         \item ROS uses python 2.7. caktin\_make build system is used to build custom messages
+         \item robot mesh and model descriptions are present in folder urdf
+         \item launch file is used to initialise various ros nodes - present in launch folder (no\_ui\_spawn.launch)
+         \item All scripts are found in scripts folder
+
+            \begin{itemize}
+                \item scripts/robot\_model.py contains kinematic and sensor models
+                    \item scripts/read\_sensor.py contains node to handle hokuyo laser range finder and correspondence algorithm 
+                    \item scripts/lv\_resample.py contains various resampling algorithms used
+                    \item scripts/my\_MCL.py handles robot localisation
+            \end{itemize}
      \end{itemize}
 \end{frame}
 
+\section{Appendix}
+\subsection{PF algorithm}
 
-\begin{frame}{DLC384 Controller FSM Diagram}
+
+\begin{frame}{MCL localisation algorithm}
     \begin{figure}
         \centering
-        \includegraphics[width=\textwidth]{RBPF_SLAM.png}$^{9}$
+        \includegraphics[width=\textwidth]{./PF.png}$^{1}$
     \end{figure}
 \end{frame}
 
-
-\begin{frame}{DLC384 Controller}
-    \begin{itemize}
-        \item There are two different input pins used to configure this sensor, SERIAL and SERDAT.
-        \item If SERIAL = 0V then SERDAT is off and CTIA capacitance (on which integration charge accumulates) is fixed to 14 pF.
-        \item If SERIAL = 5 V and SERDAT = 0V then CTIA capacitance is fixed to 18 pF or by sending some bit streams via SERDAT pin we can set different CTIA capacitance and different functions of the sensor can also be changed like(HFLIP,VFLIP).
-        \item As can be seen in FSM diagram of the DLC384 controller, which transmit 51 bits from SERDAT pin if SERIAL pin is high.
-        \item SERIAL pin is connected to DIP pin of FPGA board which can be turn on/off externally.
-        \item Bit streams are hardcoded in FPGA which can be later controlled from DIP switches.
-    \end{itemize}
-\end{frame}
-
-
-\section{Pin Configuration}
-\begin{frame}{Pin Configuration and it's Key Number}
-    \begin{table}[]
-        \centering
-        \resizebox{\textwidth}{!}{\begin{tabular}{|c|c|c|c|c|c|}
-            \hline
-            \textbf{In Port} & \textbf{Pin} & \textbf{Key} & \textbf{Out Port} & \textbf{Pin} & \textbf{Key} \\
-            \hline
-             resetn & j15 & Key0 & reset\_out & PIN\_A2 & GPIO\_02 \\
-            \hline
-            inclk & R8 & 50 MHz osc & int & PIN\_A3 & GPIO\_03 \\
-            \hline
-            vout\_en & PIN\_D3 & GPIO\_00 & clock\_6.25 & PIN\_B3 & GPIO\_04 \\
-            \hline
-            fr & PIN\_C3 & GPIO\_01 & pll\_locked & PIN\_A15 & LED0 \\
-            \hline
-              \multirow{2}{*}{Vout\_ADC} & PIN\_A4,B5,A5, & GPIO\_06 & serial\_out & PIN\_B4 & GPIO\_05 \\
-              \cline{4-6} 
-             & D5,B6,A6,B7,D6 & to GPIO\_013 & serdat & PIN\_A4 & GPIO\_06 \\
-            \hline
-            \end{tabular}}
-        \caption{1}
-    \end{table}
-\end{frame}
-
-
-\section{FPGA Resources Used}
-\begin{frame}{Resources Used}
-    \begin{table}[]
-        \centering
-        \resizebox{\textwidth}{!}{\begin{tabular}{|c|c|}
-            \hline
-            \textbf{Resource Name} & \textbf{Number/\% used} \\
-            \hline
-             Total Logic Elements & 153/22320 (less than 1\%)\\
-            \hline
-            Total Registers & 44 \\
-            \hline
-            Total Memory Bits & 524288/608256 (86\%) \\
-            \hline
-            Total PLLs & 1/4 (25\%) \\
-            \hline
-            
-            \end{tabular}}
-        \caption{2}
-    \end{table}
-\end{frame}
-
-
-
-\section{Simulation Results}
-\begin{frame}{Simulation Results Part-1: Control Signal analysis}
+\subsection{Augmented MCL algorithm}
+\begin{frame}{Augmented MCL algorithm}
     \begin{figure}
         \centering
-        \includegraphics[width=\textwidth]{RBPF_SLAM.png}$^{10}$
+        \includegraphics[height = 80mm]{./Augmented.png}$^{1}$
     \end{figure}
-\end{frame}
-
-
-\begin{frame}{Simulation Results Part-1: Control Signal analysis}
-    \begin{itemize}
-        \item To compare the simulated timing pulses of control signals with data sheet of DLC384 it is assumed that in a frame -
-            \begin{itemize}
-                \item Number of columns are 5, in place of 384.
-                \item Number of Rows are 3, in place of 288.
-                \item Number of cycles after which the next row is read (VOUT\_EN is asserted to ‘1’ after INT is asserted to ‘0”) is 2.5 in place of 18.5.
-            \end{itemize}
-        \item Simulation timing pulses of control signals (figure-10) and Clock Diagram of DLC384 (figure-6) overlaps.
-        \item we can calculate the pulse duration by looking at following counter values (In Figure-10).
-            \begin{itemize}
-                \item For 2.5 cycle(for sensor it is 18.5), for which “VOUT\_EN” is low, look for “q\_18\_cycle”.
-                \item For 5 cycle(for sensor it is 384), for which “VOUT\_EN” and “INT” are high, look for “s\_h\_counter”.
-                \item For current “s\_v\_count” to be seen.
-            \end{itemize}
-    \end{itemize}
-\end{frame}
-
-
-\begin{frame}{Simulation Results Part-1: Control Signal analysis (continue)}
-    \begin{itemize}
-        \item Using “s\_v\_count” and “s\_h\_count” values current pixel location/index can be calculated.
-        \item For reset, look for “s\_reset\_out”.
-        \item 6.25 MHz clock is “s\_clock\_6\_out”.
-        \item Signal “fr” marks the start of a new frame, after reset is done.
-        \item If "s\_serial" is high then "s\_serial\_out" is set to high and at "s\_serdat" configuration bits are sent.
-    \end{itemize}
-\end{frame}
-
-
-
-\begin{frame}{Simulation Results Part-2: Working on actual images stored in a text file}
-    \begin{itemize}
-        \item 3 images of same pixel size is taken, considered as 3 consecutive frames of a
-video.(img\_1.png, img\_2.png, img\_3.png)
-        \item Using a python script, images are converted into a single vector and then saved
-in a file one after another. This file will simulate the camera pixels.(Python script -
-image\_to\_text.ipynb , file - img\_1\_2\_3.txt)
-        \item In Quartus, a test bench is created which simulates the Camera sensor DLC384
-sensor and read file “img\_1\_2\_.txt” for throwing pixels value.
-        \item Sensor DLC384 gives analog value at VOUT pin, so a ADC considered b/w the
-sensor and the camera driver.
-        \item Once a frame is sent, testbench reads the Dual Port RAM and saves the data in
-another file “output\_img.txt”.
-        \item After the simulation both “img\_1\_2\_3.txt” and “out\_img.txt” files are compared
-using a python script, which shows both matches perfectly.
-    \end{itemize}
-\end{frame}
-
-\begin{frame}{Simulation Results Part-3: DLC384 Controller}
-    \begin{itemize}
-        \item DLC384 Controller simulation can be seen in figure-10, where “s\_serial\_out” and
-s\_serdat” should be connected to “SERIAL” and “SERDAT” pins of the DLC384 sensor.
-    \end{itemize}
 \end{frame}
 
 
 \section{Future Work}
 \begin{frame}{Future Work}
 \begin{itemize}
-    \item Built an interface between Dual Port RAM(ping\_pong concept can also be introduced) and VGA port, so the video can be observed on a VGA ,monitor.
-    \item DeO-Nano development board give 3.3 V as high and 0V as low, but Sensor pins works at 5V(as high) and 0V(as low) so level-shifter circuit need to be used.
+    \item Perfect Localisation using Augmented MCL and low variance resampling
+    \item Move on to implementing RBPF SLAM in ROS 
+    \item Running ROS in client server mode offloading heavy computations to lab machine 
 \end{itemize}
 \end{frame}
 
@@ -552,12 +459,11 @@ s\_serdat” should be connected to “SERIAL” and “SERDAT” pins of the DL
 \begin{frame}{References}
 \begin{thebibliography}{}
 \setbeamertemplate{bibliography item}[text]
-\bibitem{1} https://www.opli.net/opli\_magazine/imaging/2017/sierra-olympic-introduces-world-first-true-hd-thermal-camera-jan-news/
-\bibitem{2} https://in.element14.com/terasic-technologies/p0082/e22f17c6n-DEO-nano-dev-kit/dp/2076463
-\bibitem{3} http://www.123-cctv.com/CCTV-Monitors/7-inch-Security-LCD-Monitor-with-VGA.html
-\bibitem{4} DLC384 User Manual
-\bibitem{5} A Design of Readout Circuit for 384x288 Uncooled Microbolometer Infrared Focal Plane Array - 2012 IEEE 11th International Conference on Solid-State and Integrated Circuit
-\bibitem{6} Large dynamic range Readout Integrated Circuit for Infrared Detectors -2019 32nd International Conference on VLSI Design and 2019 18th International Conference on Embedded Systems (VLSID)
+\bibitem{1} Probabilistic Robotics by Sebastian Thrun
+\bibitem{2} \href{https://www.youtube.com/playlist?list=PLgnQpQtFTOGQrZ4O5QzbIHgl3b1JHimN\_}{SLAM Lectures by Prof Cyrill Stachniss}
+\bibitem{3} \href{https://www.theconstructsim.com/ros-projects-exploring-ros-using-2-wheeled-robot-part-1/}{URDF tutorials by construct sim}
+\bibitem{4} \href{http://wiki.ros.org/ROS/Tutorials}{ROS wiki}
+\bibitem{5} Simultaneous Localisation and Mapping (SLAM): Part I The Essential Algorithms By Hugh Durrant-Whyte
 \end{thebibliography}
 \end{frame}
 
