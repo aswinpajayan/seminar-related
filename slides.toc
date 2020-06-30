@@ -4,9 +4,15 @@
 \beamer@sectionintoc {4}{Markov assumption and Recursive Bayesian estimate}{6}{0}{4}
 \beamer@sectionintoc {5}{Frameworks for recursive filter estimation}{7}{0}{5}
 \beamer@sectionintoc {6}{Particle Filters}{8}{0}{6}
-\beamer@sectionintoc {7}{Camera Driver}{17}{0}{7}
-\beamer@sectionintoc {8}{Pin Configuration}{23}{0}{8}
-\beamer@sectionintoc {9}{FPGA Resources Used}{24}{0}{9}
-\beamer@sectionintoc {10}{Simulation Results}{25}{0}{10}
-\beamer@sectionintoc {11}{Future Work}{30}{0}{11}
-\beamer@sectionintoc {12}{References}{31}{0}{12}
+\beamer@sectionintoc {7}{RBPF}{11}{0}{7}
+\beamer@sectionintoc {8}{Implementing Particle filter localisation}{13}{0}{8}
+\beamer@subsectionintoc {8}{1}{Creating a custom robot}{14}{0}{8}
+\beamer@subsectionintoc {8}{2}{Creating a motion model}{15}{0}{8}
+\beamer@subsectionintoc {8}{3}{creating a sensor model}{16}{0}{8}
+\beamer@subsectionintoc {8}{4}{Resampling}{17}{0}{8}
+\beamer@sectionintoc {9}{Simulations}{18}{0}{9}
+\beamer@sectionintoc {10}{Pin Configuration}{23}{0}{10}
+\beamer@sectionintoc {11}{FPGA Resources Used}{24}{0}{11}
+\beamer@sectionintoc {12}{Simulation Results}{25}{0}{12}
+\beamer@sectionintoc {13}{Future Work}{30}{0}{13}
+\beamer@sectionintoc {14}{References}{31}{0}{14}
