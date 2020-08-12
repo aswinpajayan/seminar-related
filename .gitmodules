@@ -1,3 +1,6 @@
 [submodule "localisation-mcl"]
 	path = localisation-mcl
 	url = https://github.com/aswinpajayan/localisation-mcl.git
+[submodule "MCL-standalone"]
+	path = MCL-standalone
+	url = https://github.com/aswinpajayan/MCL-standalone.git
